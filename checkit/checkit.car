@@ -1,0 +1,8 @@
+
+ModRsc {
+--
+    name = "IDS_STRING_1001",
+    id   = 1001,
+    type = 1, --RESTYPE_ENCSTRING (see AEEResType.h)
+    data =EncStringRscData(0xff, "Hello World"),
+}

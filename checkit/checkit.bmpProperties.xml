@@ -1,0 +1,111 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BrewMPProperties ProjectName="checkit" Version="1.0">
+  <BuildSettings ActiveSetting="Default">
+    <CurrentPlatform>BREW 3.1.5 SP02</CurrentPlatform>
+    <ProjectSpecific>
+      <ARMCompiler Value="None" />
+      <ARMProcessor Value="ARM9" />
+    </ProjectSpecific>
+    <CustomBuild>
+      <Command>cs-make.exe -f "checkit.mak" install MIF_INSTALL_DIR=../ MOD_INSTALL_DIR=../</Command>
+      <CleanCommand>cs-make.exe -f "checkit.mak" deinstall MIF_INSTALL_DIR=../ MOD_INSTALL_DIR=../</CleanCommand>
+      <CustomBuildDirectory>c:\Users\Qwerty\Documents\Visual Studio 2005\Projects\checkit\checkit\</CustomBuildDirectory>
+    </CustomBuild>
+    <DisableMakefileGeneration>False</DisableMakefileGeneration>
+    <Libraries>
+    </Libraries>
+    <Configuration Name="Debug" CompilerVariant="Win32">
+      <LibraryDirectories>
+      </LibraryDirectories>
+      <PreProcessorDefines>_DEBUG;AEE_SIMULATOR</PreProcessorDefines>
+    </Configuration>
+    <Configuration Name="Release" CompilerVariant="Win32">
+      <LibraryDirectories>
+      </LibraryDirectories>
+      <PreProcessorDefines>NDEBUG;AEE_SIMULATOR</PreProcessorDefines>
+    </Configuration>
+    <Configuration Name="Debug" CompilerVariant="ADS12arm9">
+      <LibraryDirectories>
+      </LibraryDirectories>
+      <PreProcessorDefines>_DEBUG;</PreProcessorDefines>
+    </Configuration>
+    <Configuration Name="Release" CompilerVariant="ADS12arm9">
+      <LibraryDirectories>
+      </LibraryDirectories>
+      <PreProcessorDefines>NDEBUG;</PreProcessorDefines>
+    </Configuration>
+    <Configuration Name="Debug" CompilerVariant="RVCT22arm9">
+      <LibraryDirectories>
+      </LibraryDirectories>
+      <PreProcessorDefines>_DEBUG;</PreProcessorDefines>
+    </Configuration>
+    <Configuration Name="Release" CompilerVariant="RVCT22arm9">
+      <LibraryDirectories>
+      </LibraryDirectories>
+      <PreProcessorDefines>NDEBUG;</PreProcessorDefines>
+    </Configuration>
+    <Configuration Name="Debug" CompilerVariant="RVCT22arm11">
+      <LibraryDirectories>
+      </LibraryDirectories>
+      <PreProcessorDefines>_DEBUG;</PreProcessorDefines>
+    </Configuration>
+    <Configuration Name="Release" CompilerVariant="RVCT22arm11">
+      <LibraryDirectories>
+      </LibraryDirectories>
+      <PreProcessorDefines>NDEBUG;</PreProcessorDefines>
+    </Configuration>
+    <Configuration Name="Debug" CompilerVariant="RVCT30arm9">
+      <LibraryDirectories>
+      </LibraryDirectories>
+      <PreProcessorDefines>_DEBUG;</PreProcessorDefines>
+    </Configuration>
+    <Configuration Name="Release" CompilerVariant="RVCT30arm9">
+      <LibraryDirectories>
+      </LibraryDirectories>
+      <PreProcessorDefines>NDEBUG;</PreProcessorDefines>
+    </Configuration>
+    <Configuration Name="Debug" CompilerVariant="RVCT30arm11">
+      <LibraryDirectories>
+      </LibraryDirectories>
+      <PreProcessorDefines>_DEBUG;</PreProcessorDefines>
+    </Configuration>
+    <Configuration Name="Release" CompilerVariant="RVCT30arm11">
+      <LibraryDirectories>
+      </LibraryDirectories>
+      <PreProcessorDefines>NDEBUG;</PreProcessorDefines>
+    </Configuration>
+    <Configuration Name="Debug" CompilerVariant="armgcc">
+      <LibraryDirectories>
+      </LibraryDirectories>
+      <PreProcessorDefines>_DEBUG;</PreProcessorDefines>
+    </Configuration>
+    <Configuration Name="Release" CompilerVariant="armgcc">
+      <LibraryDirectories>
+      </LibraryDirectories>
+      <PreProcessorDefines>NDEBUG;</PreProcessorDefines>
+    </Configuration>
+  </BuildSettings>
+  <PackageSettings>
+    <Packages ActivePackage="Default" InstallLocation="UserMods">
+      <Package Name="Default" AddNewBrewFiles="True">
+        <IncludedFiles>
+          <File>
+            <Name>checkit.mod</Name>
+            <SrcPath>$(BuildDir)\checkit.mod</SrcPath>
+            <DestPath>checkit\checkit.mod</DestPath>
+          </File>
+          <File>
+            <Name>checkit.dll</Name>
+            <SrcPath>$(BuildDir)\checkit.dll</SrcPath>
+            <DestPath>checkit\checkit.dll</DestPath>
+          </File>
+          <File>
+            <Name>checkit.mif</Name>
+            <SrcPath>$(BuildDir)\checkit.mif</SrcPath>
+            <DestPath>checkit\checkit.mif</DestPath>
+          </File>
+        </IncludedFiles>
+      </Package>
+    </Packages>
+  </PackageSettings>
+</BrewMPProperties>

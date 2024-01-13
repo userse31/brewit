@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<VisualStudioUserFile
+	ProjectType="Visual C++"
+	Version="8.00"
+	ShowAllFiles="false"
+	>
+	<Configurations>
+		<Configuration
+			Name="Debug|Win32"
+			>
+			<DebugSettings
+				Command="C:\Program Files\Qualcomm\Brew MP SDK\Platforms\BREW 3.1.5 SP02\sdk\bin\BREW_Simulator.exe"
+				WorkingDirectory=""
+				CommandArguments="-a &quot;C:\Users\Qwerty\Documents\Qualcomm\BREWAppletDir&quot; -m &quot;C:\Users\Qwerty\Documents\Qualcomm\BREWAppletDir&quot; -s 11284312"
+				Attach="false"
+				DebuggerType="0"
+				Remote="1"
+				RemoteMachine="QWERTY-PC"
+				RemoteCommand=""
+				HttpUrl=""
+				PDBPath=""
+				SQLDebugging=""
+				Environment=""
+				EnvironmentMerge="true"
+				DebuggerFlavor=""
+				MPIRunCommand=""
+				MPIRunArguments=""
+				MPIRunWorkingDirectory=""
+				ApplicationCommand=""
+				ApplicationArguments=""
+				ShimCommand=""
+				MPIAcceptMode=""
+				MPIAcceptFilter=""
+			/>
+		</Configuration>
+		<Configuration
+			Name="Release|Win32"
+			>
+			<DebugSettings
+				Command="C:\Program Files\Qualcomm\Brew MP SDK\Platforms\BREW 3.1.5 SP02\sdk\bin\BREW_Simulator.exe"
+				WorkingDirectory=""
+				CommandArguments="-a &quot;C:\Users\Qwerty\Documents\Qualcomm\BREWAppletDir&quot; -m &quot;C:\Users\Qwerty\Documents\Qualcomm\BREWAppletDir&quot; -s 11284312"
+				Attach="false"
+				DebuggerType="0"
+				Remote="1"
+				RemoteMachine="QWERTY-PC"
+				RemoteCommand=""
+				HttpUrl=""
+				PDBPath=""
+				SQLDebugging=""
+				Environment=""
+				EnvironmentMerge="true"
+				DebuggerFlavor=""
+				MPIRunCommand=""
+				MPIRunArguments=""
+				MPIRunWorkingDirectory=""
+				ApplicationCommand=""
+				ApplicationArguments=""
+				ShimCommand=""
+				MPIAcceptMode=""
+				MPIAcceptFilter=""
+			/>
+		</Configuration>
+	</Configurations>
+</VisualStudioUserFile>

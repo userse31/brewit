@@ -1,0 +1,47 @@
+include "CCheckit.h"
+
+
+
+-- Applet Name
+ModRsc {
+   id    = 20, -- Applet base resource id
+   type  = 1,  --RESTYPE_ENCSTRING (see AEEResType.h)
+   data  = EncStringRscData(0xff, "BrewIt!")
+}
+
+-- Applet Icon Small
+ModRsc {
+   id    = 23, -- IDR_ICON_OFFSET,
+   type  = 6,  --RESTYPE_MIMETYPED (see AEEResType.h)
+   data  = ImageRscData("image/png", BytesOfFile("Checkit_16x16.png"))
+}
+
+-- Applet Icon Medium
+ModRsc {
+   id    = 21, -- IDR_ICON_OFFSET,
+   type  = 6,  --RESTYPE_MIMETYPED (see AEEResType.h)
+   data  = ImageRscData("image/png", BytesOfFile("Checkit_26x26.png"))
+}
+
+-- Applet Icon Large
+ModRsc {
+   id    = 22, -- IDR_ICON_OFFSET,
+   type  = 6,  --RESTYPE_MIMETYPED (see AEEResType.h)
+   data  = ImageRscData("image/png", BytesOfFile("Checkit_40x40.png"))
+}
+
+-- Applet Icon X-Large
+ModRsc {
+   id    = 39, -- IDR_ICON_OFFSET,
+   type  = 6,  --RESTYPE_MIMETYPED (see AEEResType.h)
+   data  = ImageRscData("image/png", BytesOfFile("Checkit_50x50.png"))
+}
+
+
+Applet {
+   appletid       =  AEECLSID_CCHECKIT,
+   resbaseid      =  20, -- Applet base resource id
+   applethostid   =  0,
+   type           =  0,
+   privs          = {},
+}
