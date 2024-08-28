@@ -34,6 +34,8 @@ static int chartohex(char x);
 static void copy_file(const char *_src,const char *_dest);
 static void copy_file_recursive(const char *_src,const char *_dest);
 static void dump_mifs(const char *dest_path);
+static void kexec_home();
+static void kexec_sdcard();
 
 //Globals
 AEEDeviceInfo device_info;
@@ -47,6 +49,16 @@ unsigned int _cpsr=0;//Current Program Status Register. "SPSR" is "Saved Program
 //which is only for interrupt modes and stuff for keeping the states of threads constant. We don't
 //need to read that.
 //R15 is the PC. We don't need that either as we know where the CPU is executing(our program).
+
+//System Control "Coprocessor". There are 16 _primary_ registers. 32 bits
+unsigned int CP15_MAIN_ID=0;
+
+//Vectors! (Low, High)
+//Reset: $00000000, $FFFF0000
+//Undefined: $00000004, $FFFF0004
+//Software Interrupt Exception: $00000008, $FFFF0008
+//Prefetch Abort: $0000000C, $FFFF000C
+//Data Abort: $00000010, $FFFF0010
 
 int AEEClsCreateInstance(AEECLSID ClsId, IShell * piShell, IModule * piModule, void ** ppObj){
     *ppObj = NULL;
@@ -281,6 +293,9 @@ static void screen_finite_state_machine(int screen_id){
 		case LS_SCREEN:
 			SNPRINTF(html_buffer,512,LS_SCREEN_HTML);
 			break;
+		case KEXEC_SCREEN:
+			SNPRINTF(html_buffer,512,KEXEC_SCREEN_HTML);
+			break;
 		//Specials
 		case DO_MIFDUMP_HOME:
 			dump_mifs("fs:/~/");
@@ -288,8 +303,6 @@ static void screen_finite_state_machine(int screen_id){
 		case DO_MIFDUMP_CARD0:
 			dump_mifs("fs:/card0/");
 			break;
-
-
 		case DO_BEEP_REMINDER:
 			ISHELL_Beep(pYes->piShell,BEEP_REMINDER,false);
 			break;
@@ -318,6 +331,12 @@ static void screen_finite_state_machine(int screen_id){
 		case ADD_PTR:
 			dump_memory_ptr+=0x100000;
 			SNPRINTF(html_buffer,512,DEV_SCREEN_HTML);
+			break;
+		case KEXEC_APP_HOME:
+			kexec_home();
+			break;
+		case KEXEC_APP_SDCARD:
+			kexec_sdcard();
 			break;
 		default:
 			break;
@@ -709,10 +728,13 @@ static void Checkit_init_stuff(Checkit * pMe)
 #ifndef AEE_SIMULATOR
 	//I hate ARM assembly! Oh yes I do! Sure, it's only four lines, but LEARNING to write those
 	//four lines was a BITCH.
+	//
 	asm("mov %0,r13":"=r"(_r13));
 	asm("mov %0,r14":"=r"(_r14));
 	asm("mrs r0,CPSR");//Get the CPSR, it contains stuff like what mode the CPU is in!
 	asm("mov %0,r0":"=r"(_cpsr));
+	//Read the CP15 registers
+	//asm("mrc p15, 0, %0, c0, c0, 0":"=r"(CP15_MAIN_ID));
 #endif
 	DBGPRINTF("CPSR=%08x",_cpsr);
 	//Query AMSS for device stats.
@@ -730,4 +752,66 @@ static void Checkit_init_stuff(Checkit * pMe)
 	screen_finite_state_machine(RESOLUTION_SCREEN);
 	IHTMLVIEWER_SetNotifyFn(phtmlviewer,viewer_callback,pMe);
 	IHTMLVIEWER_SetProperties(phtmlviewer,HVP_SCROLLBAR);
+}
+
+static void kexec_home(){
+	IFileMgr *ifmp;
+	IFile *image;
+	FileInfo pInfo;
+	ISHELL_CreateInstance(pYes->piShell,AEECLSID_FILEMGR,(void **)&ifmp);
+	if(ifmp==NULL){
+		ISHELL_Beep(pYes->piShell,BEEP_ERROR,false);
+		return;
+	}
+	image=IFILEMGR_OpenFile(ifmp,"fs:/~/image.bin",_OFM_READ);
+	if(image==NULL){
+		ISHELL_Beep(pYes->piShell,BEEP_ERROR,false);
+		return;
+	}
+	IFILE_GetInfo(image,&pInfo);
+	unsigned char *tmp=(unsigned char *)MALLOC(sizeof(char)*pInfo.dwSize);
+	if(tmp==NULL){
+		ISHELL_Beep(pYes->piShell,BEEP_ERROR,false);
+		return;
+	}
+
+	IFILE_Read(image,tmp,sizeof(char)*pInfo.dwSize);
+#ifndef AEE_SIMULATOR
+		asm("mov r0,%0"::"r"(tmp));
+		asm("push {r0}");
+		asm("pop {r15}");
+#endif
+	IFILE_Release(image);
+	IFILEMGR_Release(ifmp);
+}
+
+static void kexec_sdcard(){
+	IFileMgr *ifmp;
+	IFile *image;
+	FileInfo pInfo;
+	ISHELL_CreateInstance(pYes->piShell,AEECLSID_FILEMGR,(void **)&ifmp);
+	if(ifmp==NULL){
+		ISHELL_Beep(pYes->piShell,BEEP_ERROR,false);
+		return;
+	}
+	image=IFILEMGR_OpenFile(ifmp,"fs:/card0/image.bin",_OFM_READ);
+	if(image==NULL){
+		ISHELL_Beep(pYes->piShell,BEEP_ERROR,false);
+		return;
+	}
+	IFILE_GetInfo(image,&pInfo);
+	unsigned char *tmp=(unsigned char *)MALLOC(sizeof(char)*pInfo.dwSize);
+	if(tmp==NULL){
+		ISHELL_Beep(pYes->piShell,BEEP_ERROR,false);
+		return;
+	}
+
+	IFILE_Read(image,tmp,sizeof(char)*pInfo.dwSize);
+#ifndef AEE_SIMULATOR
+	asm("mov r0,%0"::"r"(tmp));
+	asm("push {r0}");
+	asm("pop {r15}");
+#endif
+	IFILE_Release(image);
+	IFILEMGR_Release(ifmp);
 }

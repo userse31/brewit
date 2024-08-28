@@ -20,7 +20,9 @@
 //#define COPY_SCREEN_HTML "File Copy<br/><form action=\"c:c\">src<input name=\"src\"></input><br/>dest<input name=\"dest\"></input><input type=\"submit\" value=\"copy\"></input></form><form action=\"e:e\">src<input name=\"src\"></input><br/>dest<input name=\"dest\"></input><input type=\"submit\" value=\"copy dir\"></input></form><a href=\"7\">Back</a><br/><a href=\"9\">Next</a>"
 #define COPY_SCREEN_HTML "File Copy<br/><form action=\"c:c\">src<input name=\"src\"></input><br/>dest<input name=\"dest\"></input><input type=\"submit\" value=\"copy\"></input></form><a href=\"-1\">Dump MIFs to fs:/~/</a><br/><a href=\"-2\">Dump MIFs to fs:/card0/</a><br/><a href=\"7\">Back</a><br/><a href=\"9\">Next</a>"
 #define LS_SCREEN 9
-#define LS_SCREEN_HTML "Directory listing<br/><form action=\"d:d\">Path<input name=\"path\"></input><input type=\"submit\" value=\"list\"></input></form><a href=\"8\">Back</a><br/><a href=\"9\">Next</a>"
+#define LS_SCREEN_HTML "Directory listing<br/><form action=\"d:d\">Path<input name=\"path\"></input><input type=\"submit\" value=\"list\"></input></form><a href=\"8\">Back</a><br/><a href=\"10\">Next</a>"
+#define KEXEC_SCREEN 10
+#define KEXEC_SCREEN_HTML "\"\"KEXEC\"\"<br/>WARNING: Here be undefined behavior! Make sure to save all work and exit all programs before continuing.<br/><a href=\"-12\">Load fs:/~/image.bin</a><br/><a href=\"-13\">Load fs:/card0/image.bin<br/><a href=\"9\">Back</a><br/><a href=\"10\">Next</a>"
 
 
 //Specials
@@ -35,3 +37,5 @@
 #define SUB_PTR -9
 #define ADD_PTR -10
 #define DUMP_MEMORY_SD -11
+#define KEXEC_APP_HOME -12
+#define KEXEC_APP_SDCARD -13
