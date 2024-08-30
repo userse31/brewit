@@ -22,8 +22,9 @@
 #define LS_SCREEN 9
 #define LS_SCREEN_HTML "Directory listing<br/><form action=\"d:d\">Path<input name=\"path\"></input><input type=\"submit\" value=\"list\"></input></form><a href=\"8\">Back</a><br/><a href=\"10\">Next</a>"
 #define KEXEC_SCREEN 10
-#define KEXEC_SCREEN_HTML "\"\"KEXEC\"\"<br/>WARNING: Here be undefined behavior! Make sure to save all work and exit all programs before continuing.<br/><a href=\"-12\">Load fs:/~/image.bin</a><br/><a href=\"-13\">Load fs:/card0/image.bin<br/><a href=\"9\">Back</a><br/><a href=\"10\">Next</a>"
-
+#define KEXEC_SCREEN_HTML "\"\"KEXEC\"\"<br/>WARNING: Here be undefined behavior! Make sure to save all work and exit all programs before continuing.<br/><a href=\"-12\">Load fs:/~/image.bin</a><br/><a href=\"-13\">Load fs:/card0/image.bin<br/><a href=\"9\">Back</a><br/><a href=\"11\">Next</a>"
+#define MRC 11
+#define MRC_HTML "System Control<br/><a href=\"-14\">Get ID Codes</a><br/>Main:$%08x<br/>Cache Type:$%08x<br/>TCM:$%08x<br/>TLB:$%08x<br/>MPU Type:$%08x<br/><a href=\"-15\">System Config Bits</a><br/>CTRL REG:$%08x<br/>AUX CTRL:$%08x<br/>COPROC CTRL:$%08x<br/><a href=\"-16\">Page Table Control</a><br/>TTBR0:$%08x<br/>TTBR1:$%08x<br/>TTBC:$%08x<br/><a href=\"-17\">Domain Access Control</a><br/>DAC:$%08x<br/><a href=\"-23\">Cache Lockdown</a><br/>UNI/DATA:$%08x<br/>INS:$%08x<br/><a href=\"-24\">TLB Lockdown</a><br/>Data/Uni: $%08x<br/>Instruction: $%08x<br/><a href=\"-25\">DMA Control</a><br/>Present: $%08x<br/><a href=\"-27\">Process ID</a><br/>FCSE: $%08x<br/><a href=\"10\">Back</a><br/><a href=\"11\">Next</a>",CR0_MAIN_ID,CR0_CACHE_TYPE,CR0_TCM_TYPE,CR0_TLB_TYPE,CR0_MPU_TYPE,CR1_CTRL,CR1_AUX_CTRL,CR1_COPROC_CTRL,CR2_TTBR0,CR2_TTBR1,CR2_TTBC,CR3_DAC,CR9_DATA_LOCK,CR9_INS_LOCK,CR10_C0_0,CR10_C0_1,CR11_C0_0,CR13_C0_0
 
 //Specials
 #define DO_MIFDUMP_HOME -1
@@ -39,3 +40,12 @@
 #define DUMP_MEMORY_SD -11
 #define KEXEC_APP_HOME -12
 #define KEXEC_APP_SDCARD -13
+#define ATTEMPT_MRC0 -14
+#define ATTEMPT_MRC1 -15
+#define ATTEMPT_MRC2 -16
+#define ATTEMPT_MRC3 -17
+#define ATTEMPT_MRC9 -23
+#define ATTEMPT_MRC10 -24
+#define ATTEMPT_MRC11 -25
+#define ATTEMPT_MRC13 -27
+#define ATTEMPT_MRC_HTML "Main ID:$%08x<br/><a href=\"0\">Back</a>",CP15_MAIN_ID

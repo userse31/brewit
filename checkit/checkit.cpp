@@ -36,6 +36,14 @@ static void copy_file_recursive(const char *_src,const char *_dest);
 static void dump_mifs(const char *dest_path);
 static void kexec_home();
 static void kexec_sdcard();
+static void attempt_MRC0();
+static void attempt_MRC1();
+static void attempt_MRC2();
+static void attempt_MRC3();
+static void attempt_MRC9();
+static void attempt_MRC10();
+static void attempt_MRC11();
+static void attempt_MRC13();
 
 //Globals
 AEEDeviceInfo device_info;
@@ -50,8 +58,33 @@ unsigned int _cpsr=0;//Current Program Status Register. "SPSR" is "Saved Program
 //need to read that.
 //R15 is the PC. We don't need that either as we know where the CPU is executing(our program).
 
-//System Control "Coprocessor". There are 16 _primary_ registers. 32 bits
-unsigned int CP15_MAIN_ID=0;
+//System Control "Coprocessor". There are 16 _primary_ registers (but more permutations, but dear lord ARM worded this part really poorly in the manual!). 32 bits
+//ID Codes
+unsigned int CR0_MAIN_ID=0;
+unsigned int CR0_CACHE_TYPE=0;
+unsigned int CR0_TCM_TYPE=0;
+unsigned int CR0_TLB_TYPE=0;
+unsigned int CR0_MPU_TYPE=0;
+//Control Bits
+unsigned int CR1_CTRL=0;
+unsigned int CR1_AUX_CTRL=0;
+unsigned int CR1_COPROC_CTRL=0;
+//Page Table Control
+unsigned int CR2_TTBR0=0;
+unsigned int CR2_TTBR1=0;
+unsigned int CR2_TTBC=0;
+//Domain Access Control
+unsigned int CR3_DAC=0;
+//Cache Lockdown
+unsigned int CR9_DATA_LOCK=0;
+unsigned int CR9_INS_LOCK=0;
+//TLB Lockdown
+unsigned int CR10_C0_0=0;
+unsigned int CR10_C0_1=0;
+//DMA
+unsigned int CR11_C0_0=0;
+//PID
+unsigned int CR13_C0_0=0;
 
 //Vectors! (Low, High)
 //Reset: $00000000, $FFFF0000
@@ -261,40 +294,43 @@ static void dump_memory(int dest){
 }
 
 static void screen_finite_state_machine(int screen_id){
-	char *html_buffer=(char*)MALLOC(sizeof(char)*512);
+	char *html_buffer=(char*)MALLOC(sizeof(char)*2048);
 	switch(screen_id){
 		case RESOLUTION_SCREEN:
-			SNPRINTF(html_buffer,512,RESOLUTION_SCREEN_HTML);
+			SNPRINTF(html_buffer,2048,RESOLUTION_SCREEN_HTML);
 			break;
 		case GUI_SCREEN:
-			SNPRINTF(html_buffer,512,GUI_SCREEN_HTML);
+			SNPRINTF(html_buffer,2048,GUI_SCREEN_HTML);
 			break;
 		case MISC_SCREEN:
-			SNPRINTF(html_buffer,512,MISC_SCREEN_HTML,ISHELL_GetUpTimeMS(pYes->piShell));
+			SNPRINTF(html_buffer,2048,MISC_SCREEN_HTML,ISHELL_GetUpTimeMS(pYes->piShell));
 			break;
 		case BENCH_SCREEN:
-			SNPRINTF(html_buffer,512,BENCH_SCREEN_HTML);
+			SNPRINTF(html_buffer,2048,BENCH_SCREEN_HTML);
 			break;
 		case DO_FSIN_BENCH:
-			SNPRINTF(html_buffer,512,"FSIN():%u/sec<br/><a href=\"3\">Back</a>",bench_trig());
+			SNPRINTF(html_buffer,2048,"FSIN():%u/sec<br/><a href=\"3\">Back</a>",bench_trig());
 			break;
 		case DO_LONG_BENCH:
-			SNPRINTF(html_buffer,512,"Unsigned Longs:%lu/sec<br/><a href=\"3\">Back</a>",bench_longs());
+			SNPRINTF(html_buffer,2048,"Unsigned Longs:%lu/sec<br/><a href=\"3\">Back</a>",bench_longs());
 			break;
 		case DEV_SCREEN:
-			SNPRINTF(html_buffer,512,DEV_SCREEN_HTML);
+			SNPRINTF(html_buffer,2048,DEV_SCREEN_HTML);
 			break;
 		case BROWSE_SCREEN:
-			SNPRINTF(html_buffer,512,BROWSE_SCREEN_HTML);
+			SNPRINTF(html_buffer,2048,BROWSE_SCREEN_HTML);
 			break;
 		case COPY_SCREEN:
-			SNPRINTF(html_buffer,512,COPY_SCREEN_HTML);
+			SNPRINTF(html_buffer,2048,COPY_SCREEN_HTML);
 			break;
 		case LS_SCREEN:
-			SNPRINTF(html_buffer,512,LS_SCREEN_HTML);
+			SNPRINTF(html_buffer,2048,LS_SCREEN_HTML);
 			break;
 		case KEXEC_SCREEN:
-			SNPRINTF(html_buffer,512,KEXEC_SCREEN_HTML);
+			SNPRINTF(html_buffer,2048,KEXEC_SCREEN_HTML);
+			break;
+		case MRC:
+			SNPRINTF(html_buffer,2048,MRC_HTML);
 			break;
 		//Specials
 		case DO_MIFDUMP_HOME:
@@ -326,11 +362,11 @@ static void screen_finite_state_machine(int screen_id){
 			break;
 		case SUB_PTR:
 			dump_memory_ptr-=0x100000;
-			SNPRINTF(html_buffer,512,DEV_SCREEN_HTML);
+			SNPRINTF(html_buffer,2048,DEV_SCREEN_HTML);
 			break;
 		case ADD_PTR:
 			dump_memory_ptr+=0x100000;
-			SNPRINTF(html_buffer,512,DEV_SCREEN_HTML);
+			SNPRINTF(html_buffer,2048,DEV_SCREEN_HTML);
 			break;
 		case KEXEC_APP_HOME:
 			kexec_home();
@@ -338,10 +374,42 @@ static void screen_finite_state_machine(int screen_id){
 		case KEXEC_APP_SDCARD:
 			kexec_sdcard();
 			break;
+		case ATTEMPT_MRC0:
+			attempt_MRC0();
+			SNPRINTF(html_buffer,2048,MRC_HTML);
+			break;
+		case ATTEMPT_MRC1:
+			attempt_MRC1();
+			SNPRINTF(html_buffer,2048,MRC_HTML);
+			break;
+		case ATTEMPT_MRC2:
+			attempt_MRC2();
+			SNPRINTF(html_buffer,2048,MRC_HTML);
+			break;
+		case ATTEMPT_MRC3:
+			attempt_MRC3();
+			SNPRINTF(html_buffer,2048,MRC_HTML);
+			break;
+		case ATTEMPT_MRC9:
+			attempt_MRC9();
+			SNPRINTF(html_buffer,2048,MRC_HTML);
+			break;
+		case ATTEMPT_MRC10:
+			attempt_MRC10();
+			SNPRINTF(html_buffer,2048,MRC_HTML);
+			break;
+		case ATTEMPT_MRC11:
+			attempt_MRC11();
+			SNPRINTF(html_buffer,2048,MRC_HTML);
+			break;
+		case ATTEMPT_MRC13:
+			attempt_MRC13();
+			SNPRINTF(html_buffer,2048,MRC_HTML);
+			break;
 		default:
 			break;
 	}
-	if(screen_id>=0 || screen_id==SUB_PTR || screen_id==ADD_PTR){
+	if(screen_id>=0 || screen_id==SUB_PTR || screen_id==ADD_PTR || screen_id==ATTEMPT_MRC0 || screen_id==ATTEMPT_MRC1 || screen_id==ATTEMPT_MRC2 || screen_id==ATTEMPT_MRC3 || screen_id==ATTEMPT_MRC9 || screen_id==ATTEMPT_MRC10 || screen_id==ATTEMPT_MRC11 || screen_id==ATTEMPT_MRC13){
 		IHTMLVIEWER_SetData(phtmlviewer,html_buffer,-1);
 	}
 	FREE(html_buffer);
@@ -726,15 +794,10 @@ static void Checkit_init_stuff(Checkit * pMe)
 	image_base_address_ram=find_base_addr();
 	//Arm stuff for registers. An i686 cpu probably won't execute these very well.
 #ifndef AEE_SIMULATOR
-	//I hate ARM assembly! Oh yes I do! Sure, it's only four lines, but LEARNING to write those
-	//four lines was a BITCH.
-	//
 	asm("mov %0,r13":"=r"(_r13));
 	asm("mov %0,r14":"=r"(_r14));
 	asm("mrs r0,CPSR");//Get the CPSR, it contains stuff like what mode the CPU is in!
 	asm("mov %0,r0":"=r"(_cpsr));
-	//Read the CP15 registers
-	//asm("mrc p15, 0, %0, c0, c0, 0":"=r"(CP15_MAIN_ID));
 #endif
 	DBGPRINTF("CPSR=%08x",_cpsr);
 	//Query AMSS for device stats.
@@ -814,4 +877,61 @@ static void kexec_sdcard(){
 #endif
 	IFILE_Release(image);
 	IFILEMGR_Release(ifmp);
+}
+
+static void attempt_MRC0(){
+	//Read the CP15 registers
+#ifndef AEE_SIMULATOR
+	//mrc p15, 0 (Arm, why is there just a random zero here?), (destination), CRn, CRm, opcode2
+	//ID Codes
+	asm("mrc p15, 0, %0, c0, c0, 0":"=r"(CR0_MAIN_ID));
+	asm("mrc p15, 0, %0, c0, c0, 1":"=r"(CR0_CACHE_TYPE));
+	asm("mrc p15, 0, %0, c0, c0, 2":"=r"(CR0_TCM_TYPE));
+	asm("mrc p15, 0, %0, c0, c0, 3":"=r"(CR0_TLB_TYPE));
+	asm("mrc p15, 0, %0, c0, c0, 4":"=r"(CR0_MPU_TYPE));
+#endif
+}
+static void attempt_MRC1(){
+	//Control Bits
+#ifndef AEE_SIMULATOR
+	asm("mrc p15, 0, %0, c1, c1, 0":"=r"(CR1_CTRL));
+	asm("mrc p15, 0, %0, c1, c1, 1":"=r"(CR1_AUX_CTRL));
+	asm("mrc p15, 0, %0, c1, c1, 2":"=r"(CR1_COPROC_CTRL));
+#endif
+}
+static void attempt_MRC2(){
+#ifndef AEE_SIMULATOR
+	//Memory protection and control
+	asm("mrc p15, 0, %0, c2, c0, 0":"=r"(CR2_TTBR0));
+	asm("mrc p15, 0, %0, c2, c0, 1":"=r"(CR2_TTBR1));
+	asm("mrc p15, 0, %0, c2, c0, 2":"=r"(CR2_TTBC));
+#endif
+}
+static void attempt_MRC3(){
+#ifndef AEE_SIMULATOR
+	//Domain Access Control
+	asm("mrc p15, 0, %0, c2, c0, 0":"=r"(CR3_DAC));
+#endif
+}
+static void attempt_MRC9(){
+#ifndef AEE_SIMULATOR
+	asm("mrc p15, 0, %0, c9, c0, 0":"=r"(CR9_DATA_LOCK));
+	asm("mrc p15, 0, %0, c9, c0, 1":"=r"(CR9_INS_LOCK));
+#endif
+}
+static void attempt_MRC10(){
+#ifndef AEE_SIMULATOR
+	asm("mrc p15, 0, %0, c10, c0, 0":"=r"(CR10_C0_0));
+	asm("mrc p15, 0, %0, c10, c0, 1":"=r"(CR10_C0_1));
+#endif
+}
+static void attempt_MRC11(){
+#ifndef AEE_SIMULATOR
+	asm("mrc p15, 0, %0, c11, c0, 0":"=r"(CR11_C0_0));
+#endif
+}
+static void attempt_MRC13(){
+#ifndef AEE_SIMULATOR
+	asm("mrc p15, 0, %0, c13, c0, 0":"=r"(CR13_C0_0));
+#endif
 }
