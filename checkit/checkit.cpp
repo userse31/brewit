@@ -45,12 +45,14 @@ static void attempt_MRC10();
 static void attempt_MRC11();
 static void attempt_MRC13();
 
+static void memprot_disable();
+
 //Globals
 AEEDeviceInfo device_info;
 IHtmlViewer *phtmlviewer;
 Checkit * pYes;
 unsigned int image_base_address_ram=0;
-unsigned char *dump_memory_ptr=0;
+unsigned int dump_memory_ptr=0;
 unsigned int _r13=0;//Stack pointer
 unsigned int _r14=0;//Link register
 unsigned int _cpsr=0;//Current Program Status Register. "SPSR" is "Saved Program Status Register"
@@ -251,7 +253,7 @@ return 0;
 }
 
 static void dump_memory(int dest){
-	DBGPRINTF("address: %p",dump_memory_ptr);
+	DBGPRINTF("Dumping $%08x",dump_memory_ptr);
 	IFileMgr *pfm=0;
 	IFile *fp=0;
 	ISHELL_CreateInstance(pYes->piShell,AEECLSID_FILEMGR,(void **)&pfm);
@@ -272,16 +274,16 @@ static void dump_memory(int dest){
 		return;
 	}
 	IFILE_Seek(fp,_SEEK_START,0);
-	unsigned char *tmp_ptr=dump_memory_ptr;
-	DBGPRINTF("dump_memory_ptr: %p, tmp_ptr: %p",dump_memory_ptr,tmp_ptr);
+	unsigned char *tmp_ptr=(unsigned char*)dump_memory_ptr;
+	DBGPRINTF("tmp_ptr: %p",tmp_ptr);
 	unsigned int bytes_written=0;
 	if(dump_memory_ptr==0){//Special case as IFILE_Write() bails if memory address is 0.
 		unsigned char tmp[]={0};
-		tmp[0]=dump_memory_ptr[0];
+		tmp[0]=tmp_ptr[0];
 		bytes_written=IFILE_Write(fp,&tmp,1);
-		bytes_written+=IFILE_Write(fp,(const void*)1,0xffffe);
+		bytes_written+=IFILE_Write(fp,(const void*)1,0xfffe);
 	}else{
-		bytes_written=IFILE_Write(fp,(const void*)1,0xfffff);
+		bytes_written=IFILE_Write(fp,tmp_ptr,0xffff);
 	}
 	//Make a sound to confirm the dump was successful.
 	if(bytes_written!=0){
@@ -406,6 +408,9 @@ static void screen_finite_state_machine(int screen_id){
 			attempt_MRC13();
 			SNPRINTF(html_buffer,2048,MRC_HTML);
 			break;
+		case ATTEMPT_MEMPROT_DISABLE:
+			memprot_disable();
+			break;
 		default:
 			break;
 	}
@@ -437,20 +442,26 @@ static int chartohex(char x){
 			return 8;
 		case '9':
 			return 9;
+		case 'a':
 		case 'A':
 			return 10;
+		case 'b':
 		case 'B':
 			return 11;
+		case 'c':
 		case 'C':
 			return 12;
+		case 'd':
 		case 'D':
 			return 13;
+		case 'e':
 		case 'E':
 			return 14;
+		case 'f':
 		case 'F':
 			return 15;
 		default:
-			return -1;
+			return 0;
 	}
 }
 
@@ -512,7 +523,29 @@ static void copy_file_recursive(const char *_src,const char *_dest){
 
 static void submit_manager(const char *url){
 	DBGPRINTF("submit: %s",url);
-	
+	if(url[0]=='e'){
+		char _start_addr[9];
+		_start_addr[8]=0;
+		int j=15;
+		for(int i=0;i<8;i++){
+			if(url[j+i]==0){
+				_start_addr[i]=0;
+			}
+			_start_addr[i]=url[j+i];
+		}
+		//DBGPRINTF("Thing: %s",_start_addr);
+		unsigned int tmp=0;
+		tmp=chartohex(_start_addr[0]);
+		tmp=(tmp<<4)|chartohex(_start_addr[1]);
+		tmp=(tmp<<4)|chartohex(_start_addr[2]);
+		tmp=(tmp<<4)|chartohex(_start_addr[3]);
+		tmp=(tmp<<4)|chartohex(_start_addr[4]);
+		tmp=(tmp<<4)|chartohex(_start_addr[5]);
+		tmp=(tmp<<4)|chartohex(_start_addr[6]);
+		tmp=(tmp<<4)|chartohex(_start_addr[7]);
+		dump_memory_ptr=tmp;
+		//DBGPRINTF("dump_memory_ptr:%p",dump_memory_ptr);
+	}
 	if(url[0]=='d'){
 		char _path[128];
 		int j=9;
@@ -894,9 +927,10 @@ static void attempt_MRC0(){
 static void attempt_MRC1(){
 	//Control Bits
 #ifndef AEE_SIMULATOR
-	asm("mrc p15, 0, %0, c1, c1, 0":"=r"(CR1_CTRL));
-	asm("mrc p15, 0, %0, c1, c1, 1":"=r"(CR1_AUX_CTRL));
-	asm("mrc p15, 0, %0, c1, c1, 2":"=r"(CR1_COPROC_CTRL));
+	asm("mrc p15, 0, %0, c1, c0, 0":"=r"(CR1_CTRL));
+	//The Auxiliary and coprocessor access registers are either nonexistant, or privileged where SUPERVISOR isn't allowed to touch.
+	//asm("mrc p15, 0, %0, c1, c0, 1":"=r"(CR1_AUX_CTRL));
+	//asm("mrc p15, 0, %0, c1, c0, 2":"=r"(CR1_COPROC_CTRL));
 #endif
 }
 static void attempt_MRC2(){
@@ -933,5 +967,15 @@ static void attempt_MRC11(){
 static void attempt_MRC13(){
 #ifndef AEE_SIMULATOR
 	asm("mrc p15, 0, %0, c13, c0, 0":"=r"(CR13_C0_0));
+#endif
+}
+
+static void memprot_disable(){
+	unsigned int tmp=0;
+#ifndef AEE_SIMULATOR
+	asm("mrc p15, 0, %0, c1, c0, 0":"=r"(tmp));
+	tmp=tmp&0b11111111111111111111111111111110;
+	asm("mcr p15, 0, %0, c1, c0, 0"::"r"(tmp));
+	asm("mrc p15, 0, %0, c1, c0, 0":"=r"(CR1_CTRL));
 #endif
 }
