@@ -4,7 +4,8 @@
 #define GUI_SCREEN 1
 #define GUI_SCREEN_HTML "GUI Info:<br/>Scroll Bar Width:%i<br/>Character Set:$%04x<br/>Auto Scroll Speed:%i(ms)<br/>Color Depth:%i<br/>wMenuImageDelay:%i<br/><a href=\"0\">Back</a><br/><a href=\"2\">Next</a>",device_info.cxScrollBar,device_info.wEncoding,device_info.wMenuTextScroll,device_info.nColorDepth,device_info.wMenuImageDelay
 #define MISC_SCREEN 2
-#define MISC_SCREEN_HTML "Misculanious<br/>Ram:%i<br/>Default Prompt Properties:$%08x<br/>App Closing Keycode:$%04x<br/>Keycode to Close All Apps:$%04x<br/>Active non-sleep:%i(ms)<br/>Max File Path Length:%i<br/>Platform ID:$%08x<br/>Uptime:%i(ms)<br/><a href=\"1\">Back</a><br/><a href=\"3\">Next</a>",device_info.dwRAM,device_info.dwPromptProps,device_info.wKeyCloseApp,device_info.dwSleepDefer,device_info.wMaxPath,device_info.dwPlatformID
+//Misspelled "miscellaneous" and it got used in the GUI. Absolutely embarrassing...
+#define MISC_SCREEN_HTML "Miscellaneous<br/>Ram:%i<br/>Default Prompt Properties:$%08x<br/>App Closing Keycode:$%04x<br/>Keycode to Close All Apps:$%04x<br/>Active non-sleep:%i(ms)<br/>Max File Path Length:%i<br/>Platform ID:$%08x<br/>Uptime:%i(ms)<br/><a href=\"1\">Back</a><br/><a href=\"3\">Next</a>",device_info.dwRAM,device_info.dwPromptProps,device_info.wKeyCloseApp,device_info.dwSleepDefer,device_info.wMaxPath,device_info.dwPlatformID
 #define BENCH_SCREEN 3
 //#define BENCH_SCREEN_HTML "Benchmarks:<br/>FSIN():%u/sec<br/>Unsigned Longs:%lu/sec<br/><a href=\"2\">Back</a>",bench_trig(),bench_longs()
 #define BENCH_SCREEN_HTML "Benchmarks:<br/><a href=\"4\">FSIN</a><br/><a href=\"5\">Unsigned Longs</a><br/><a href=\"2\">Back</a><br/><a href=\"6\">Next</a>"
