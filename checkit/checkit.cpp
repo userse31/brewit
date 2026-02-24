@@ -53,6 +53,7 @@ IHtmlViewer *phtmlviewer;
 Checkit * pYes;
 unsigned int image_base_address_ram=0;
 unsigned int dump_memory_ptr=0;
+unsigned int dump_memory_length=0;
 unsigned int _r13=0;//Stack pointer
 unsigned int _r14=0;//Link register
 unsigned int _cpsr=0;//Current Program Status Register. "SPSR" is "Saved Program Status Register"
@@ -253,6 +254,7 @@ return 0;
 }
 
 static void dump_memory(int dest){
+	//dump_memory_length
 	DBGPRINTF("Dumping $%08x",dump_memory_ptr);
 	IFileMgr *pfm=0;
 	IFile *fp=0;
@@ -262,12 +264,12 @@ static void dump_memory(int dest){
 		return;
 	}
 	if(dest==0){
-	IFILEMGR_Remove(pfm,"fs:/~/snippit.bin");
-	fp=IFILEMGR_OpenFile(pfm,"fs:/~/snippit.bin",_OFM_CREATE);
+	IFILEMGR_Remove(pfm,"fs:/~/brewit_dump_snippit.bin");
+	fp=IFILEMGR_OpenFile(pfm,"fs:/~/brewit_dump_snippit.bin",_OFM_CREATE);
 	}
 	if(dest==1){
-		IFILEMGR_Remove(pfm,"fs:/card0/snippit.bin");
-		fp=IFILEMGR_OpenFile(pfm,"fs:/card0/snippit.bin",_OFM_CREATE);
+		IFILEMGR_Remove(pfm,"fs:/card0/brewit_dump_snippit.bin");
+		fp=IFILEMGR_OpenFile(pfm,"fs:/card0/brewit_dump_snippit.bin",_OFM_CREATE);
 	}
 	if(fp==NULL){
 		ISHELL_Beep(pYes->piShell,BEEP_ERROR,false);
@@ -281,9 +283,9 @@ static void dump_memory(int dest){
 		unsigned char tmp[]={0};
 		tmp[0]=tmp_ptr[0];
 		bytes_written=IFILE_Write(fp,&tmp,1);
-		bytes_written+=IFILE_Write(fp,(const void*)1,0xfffe);
+		bytes_written+=IFILE_Write(fp,(const void*)1,(dump_memory_length-1));
 	}else{
-		bytes_written=IFILE_Write(fp,tmp_ptr,0xffff);
+		bytes_written=IFILE_Write(fp,tmp_ptr,dump_memory_length);
 	}
 	//Make a sound to confirm the dump was successful.
 	if(bytes_written!=0){
@@ -522,9 +524,10 @@ static void copy_file_recursive(const char *_src,const char *_dest){
 }
 
 static void submit_manager(const char *url){
+	//
 	DBGPRINTF("submit: %s",url);
 	if(url[0]=='e'){
-		char _start_addr[9];
+		char _start_addr[9];//Temp buffer for holding snippit of url.
 		_start_addr[8]=0;
 		int j=15;
 		for(int i=0;i<8;i++){
@@ -533,7 +536,7 @@ static void submit_manager(const char *url){
 			}
 			_start_addr[i]=url[j+i];
 		}
-		//DBGPRINTF("Thing: %s",_start_addr);
+		DBGPRINTF("Thing: %s",_start_addr);
 		unsigned int tmp=0;
 		tmp=chartohex(_start_addr[0]);
 		tmp=(tmp<<4)|chartohex(_start_addr[1]);
@@ -544,7 +547,27 @@ static void submit_manager(const char *url){
 		tmp=(tmp<<4)|chartohex(_start_addr[6]);
 		tmp=(tmp<<4)|chartohex(_start_addr[7]);
 		dump_memory_ptr=tmp;
-		//DBGPRINTF("dump_memory_ptr:%p",dump_memory_ptr);
+		DBGPRINTF("dump_memory_ptr:%p",dump_memory_ptr);
+		int length_arg_offset=0;
+		for(int i=0;i<32;i++){
+			if(url[i]=='&'){
+				length_arg_offset=i;
+				break;
+			}
+		}
+		DBGPRINTF("join offset=%i\n",length_arg_offset);
+		DBGPRINTF("%c\n",url[length_arg_offset+8]);
+		tmp=0;
+		tmp=chartohex(url[length_arg_offset+8]);
+		tmp=(tmp<<4)|chartohex(url[length_arg_offset+9]);
+		tmp=(tmp<<4)|chartohex(url[length_arg_offset+10]);
+		tmp=(tmp<<4)|chartohex(url[length_arg_offset+11]);
+		tmp=(tmp<<4)|chartohex(url[length_arg_offset+12]);
+		tmp=(tmp<<4)|chartohex(url[length_arg_offset+13]);
+		tmp=(tmp<<4)|chartohex(url[length_arg_offset+14]);
+		tmp=(tmp<<4)|chartohex(url[length_arg_offset+15]);
+		dump_memory_length=tmp;
+		DBGPRINTF("dump_memory_length:%x\n",dump_memory_length);
 	}
 	if(url[0]=='d'){
 		char _path[128];
