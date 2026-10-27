@@ -289,8 +289,10 @@ static void dump_memory(int dest){
 	}
 	//Make a sound to confirm the dump was successful.
 	if(bytes_written!=0){
+		DBGPRINTF("Memory Dump Failed.");
 		ISHELL_Beep(pYes->piShell,BEEP_MSG,false);
 	}else{
+		DBGPRINTF("Memory Dump Successful.");
 		ISHELL_Beep(pYes->piShell,BEEP_ERROR,false);
 	}
 	IFILE_Release(fp);
@@ -336,9 +338,21 @@ static void screen_finite_state_machine(int screen_id){
 		case MRC:
 			SNPRINTF(html_buffer,2048,MRC_HTML);
 			break;
+		case FUNCTION_POINTERS_SCREEN_0:
+			//ISHELL_Busy(pYes->piShell);
+			//#if defined(AEE_SIMULATOR)-> g_pvtAEEStdLibEntry
+			//Else-> extern int AEEMod_Load(IShell *ps, void * pszRes, IModule ** pm);
+
+			SNPRINTF(html_buffer,2048,FUNCTION_POINTERS_SCREEN_0_HTML);
+			break;
+		case FUNCTION_POINTERS_SCREEN_1:
+			DBGPRINTF("%p",VSPRINTF);
+			SNPRINTF(html_buffer,2048,FUNCTION_POINTERS_SCREEN_1_HTML);
+			break;
+
 		//Specials
 		case DO_MIFDUMP_HOME:
-			dump_mifs("fs:/~/");
+			dump_mifs("fs:/shared/");
 			break;
 		case DO_MIFDUMP_CARD0:
 			dump_mifs("fs:/card0/");
